@@ -109,6 +109,36 @@
 #ifndef NO_MSGAPI
 #define NO_MSGAPI 1
 #endif
+
+#elif defined(__3DS__)
+#ifndef HAS_POLL
+#define HAS_POLL 1
+#endif
+#ifndef HAS_FCNTL
+#define HAS_FCNTL 1
+#endif
+#ifndef HAS_IOCTL
+#define HAS_IOCTL 1
+#endif
+#ifndef HAS_INET_PTON
+#define HAS_INET_PTON 1
+#endif
+#ifndef HAS_INET_NTOP
+#define HAS_INET_NTOP 1
+#endif
+#ifndef HAS_SOCKLEN_T
+#define HAS_SOCKLEN_T 1
+#endif
+#ifndef HAS_GETADDRINFO
+#define HAS_GETADDRINFO 1
+#endif
+#ifndef HAS_GETNAMEINFO
+#define HAS_GETNAMEINFO 1
+#endif
+#ifndef NO_MSGAPI
+#define NO_MSGAPI 1
+#endif
+
 #else
 #ifndef HAS_IOCTL
 #define HAS_IOCTL 1
@@ -371,7 +401,7 @@ enet_socket_set_option (ENetSocket socket, ENetSocketOption option, int value)
             result = setsockopt (socket, SOL_SOCKET, SO_SNDBUF, (char *) & value, sizeof (int));
             break;
 
-#ifndef __WIIU__
+#if !(defined(__WIIU__) || defined(__3DS__))
         case ENET_SOCKOPT_RCVTIMEO:
         {
             struct timeval timeVal;
