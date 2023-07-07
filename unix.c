@@ -465,6 +465,10 @@ enet_socket_get_option (ENetSocket socket, ENetSocketOption option, int * value)
         case ENET_SOCKOPT_ERROR:
             len = sizeof (int);
             result = getsockopt (socket, SOL_SOCKET, SO_ERROR, value, & len);
+#ifdef __3DS__
+            // getsockopt has issues in libctru's implementation, see https://github.com/devkitPro/libctru/issues/412
+            if (*value == -26) { *value = 0; result = 0; }
+#endif
             break;
 
         default:
