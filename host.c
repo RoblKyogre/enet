@@ -64,7 +64,6 @@ enet_host_create (int addressFamily, const ENetAddress * address, size_t peerCou
     enet_socket_set_option (host -> socket, ENET_SOCKOPT_NONBLOCK, 1);
     enet_socket_set_option (host -> socket, ENET_SOCKOPT_RCVBUF, ENET_HOST_RECEIVE_BUFFER_SIZE);
     enet_socket_set_option (host -> socket, ENET_SOCKOPT_SNDBUF, ENET_HOST_SEND_BUFFER_SIZE);
-    enet_socket_set_option (host -> socket, ENET_SOCKOPT_QOS, 1);
 
     if (address != NULL && enet_socket_get_address (host -> socket, & host -> address) < 0)   
       host -> address = * address;
@@ -97,6 +96,7 @@ enet_host_create (int addressFamily, const ENetAddress * address, size_t peerCou
     host -> totalSentPackets = 0;
     host -> totalReceivedData = 0;
     host -> totalReceivedPackets = 0;
+    host -> totalQueued = 0;
 
     host -> connectedPeers = 0;
     host -> bandwidthLimitedPeers = 0;
@@ -124,8 +124,8 @@ enet_host_create (int addressFamily, const ENetAddress * address, size_t peerCou
 
        enet_list_clear (& currentPeer -> acknowledgements);
        enet_list_clear (& currentPeer -> sentReliableCommands);
-       enet_list_clear (& currentPeer -> sentUnreliableCommands);
        enet_list_clear (& currentPeer -> outgoingCommands);
+       enet_list_clear (& currentPeer -> outgoingSendReliableCommands);
        enet_list_clear (& currentPeer -> dispatchedCommands);
 
        enet_peer_reset (currentPeer);
@@ -211,6 +211,7 @@ enet_host_connect (ENetHost * host, const ENetAddress * address, size_t channelC
     currentPeer -> state = ENET_PEER_STATE_CONNECTING;
     currentPeer -> address = * address;
     currentPeer -> connectID = enet_host_random (host);
+    currentPeer -> mtu = host -> mtu;
 
     if (host -> outgoingBandwidth == 0)
       currentPeer -> windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;

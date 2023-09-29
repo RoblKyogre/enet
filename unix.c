@@ -449,6 +449,10 @@ enet_socket_set_option (ENetSocket socket, ENetSocketOption option, int value)
 #endif /* SO_NET_SERVICE_TYPE */
             break;
 
+        case ENET_SOCKOPT_TTL:
+            result = setsockopt (socket, IPPROTO_IP, IP_TTL, (char *) & value, sizeof (int));
+            break;
+
         default:
             break;
     }
@@ -469,6 +473,11 @@ enet_socket_get_option (ENetSocket socket, ENetSocketOption option, int * value)
             // getsockopt has issues in libctru's implementation, see https://github.com/devkitPro/libctru/issues/412
             if (*value == -26) { *value = 0; result = 0; }
 #endif
+            break;
+
+        case ENET_SOCKOPT_TTL:
+            len = sizeof (int);
+            result = getsockopt (socket, IPPROTO_IP, IP_TTL, (char *) value, & len);
             break;
 
         default:
@@ -688,7 +697,7 @@ enet_socket_receive (ENetSocket socket,
 
 #ifdef HAS_MSGHDR_FLAGS
     if (msgHdr.msg_flags & MSG_TRUNC)
-      return -1;
+      return -2;
 #endif
 
     // Retrieve the local address that this traffic was received on
