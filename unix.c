@@ -763,7 +763,15 @@ enet_socket_wait (ENetSocket socket, enet_uint32 * condition, enet_uint32 timeou
     if (* condition & ENET_SOCKET_WAIT_RECEIVE)
       pollSocket.events |= POLLIN;
 
+#ifdef __3DS__
+    int i = 0;
+    while (pollCount == 0 && i <= timeout) {
+        pollCount = poll (& pollSocket, 1, timeout); // need to do this on 3ds since poll will block even if socket is readable before
+        i++;
+    }
+#else
     pollCount = poll (& pollSocket, 1, timeout);
+#endif
 
     if (pollCount < 0)
     {
