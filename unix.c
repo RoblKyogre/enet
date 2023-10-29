@@ -765,8 +765,8 @@ enet_socket_wait (ENetSocket socket, enet_uint32 * condition, enet_uint32 timeou
 
 #ifdef __3DS__
     int i = 0;
-    while (pollCount == 0 && i <= timeout) {
-        pollCount = poll (& pollSocket, 1, timeout); // need to do this on 3ds since poll will block even if socket is readable before
+    while (pollCount == 0 && (i <= timeoutMs || timeout < 0)) {
+        pollCount = poll (& pollSocket, 1, timeout); // need to do this on 3ds since poll will block even if socket is ready before
         i++;
     }
 #else
